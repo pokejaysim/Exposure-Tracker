@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exposure Therapy Progress Tracker</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #5a67d8;
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5em;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        /* Login Screen */
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            text-align: center;
+        }
+        
+        .login-container h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+        }
+        
+        .login-container p {
+            color: #718096;
+            margin-bottom: 30px;
+            max-width: 400px;
+        }
+        
+        #googleSignInButton {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        #googleSignInButton:hover {
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .google-logo {
+            width: 20px;
+            height: 20px;
+        }
+        
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+        }
+        
+        .user-info img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+        
+        .user-info button {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .user-info button:hover {
+            background: #c53030;
+        }
+        
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #5a67d8;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            background: #e0e7ff;
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: #5a67d8;
+            position: relative;
+        }
+        
+        .tab:hover {
+            background: #c7d2fe;
+            transform: translateY(-2px);
+        }
+        
+        .tab.active {
+            background: #5a67d8;
+            color: white;
+            box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+        }
+        
+        .tab .notification-dot {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 10px;
+            height: 10px;
+            background: #f56565;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(245, 101, 101, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(245, 101, 101, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(245, 101, 101, 0);
+            }
+        }
+        
+        .section {
+            display: none;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        /* Life Goals Section */
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        
+        .goal-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        
+        .goal-card::before {
+            content: attr(data-number);
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            font-size: 80px;
+            font-weight: bold;
+            opacity: 0.1;
+        }
+        
+        .goal-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+        
+        .goal-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 10px;
+            padding: 10px;
+            color: white;
+            font-size: 16px;
+            backdrop-filter: blur(5px);
+        }
+        
+        .goal-input::placeholder {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        /* Exposure Log Section */
+        .exposure-form {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #4a5568;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #5a67d8;
+            box-shadow: 0 0 0 3px rgba(90, 103, 216, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .anxiety-slider {
+            width: 100%;
+            -webkit-appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: linear-gradient(to right, #48bb78 0%, #f6e05e 50%, #f56565 100%);
+            outline: none;
+        }
+        
+        .anxiety-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #5a67d8;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        
+        .slider-value {
+            display: inline-block;
+            margin-left: 10px;
+            font-weight: bold;
+            color: #5a67d8;
+        }
+        
+        .btn {
+            background: #5a67d8;
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(90, 103, 216, 0.3);
+        }
+        
+        .btn:hover {
+            background: #4c51bf;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(90, 103, 216, 0.4);
+        }
+        
+        .btn-secondary {
+            background: #718096;
+        }
+        
+        .btn-secondary:hover {
+            background: #4a5568;
+        }
+        
+        .btn-edit {
+            background: #48bb78;
+            padding: 5px 15px;
+            font-size: 14px;
+        }
+        
+        .btn-edit:hover {
+            background: #38a169;
+        }
+        
+        .reference-preview {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+        
+        .exposures-list {
+            margin-top: 30px;
+        }
+        
+        .exposure-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .exposure-item:hover {
+            border-color: #5a67d8;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .exposure-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .exposure-date {
+            font-weight: 600;
+            color: #5a67d8;
+        }
+        
+        .anxiety-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .anxiety-low {
+            background: #c6f6d5;
+            color: #276749;
+        }
+        
+        .anxiety-medium {
+            background: #fefcbf;
+            color: #744210;
+        }
+        
+        .anxiety-high {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        /* Weekly Summary Section */
+        .summary-form {
+            background: #f7fafc;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        .week-reminder {
+            background: linear-gradient(135deg, #f56565 0%, #e53e3e 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .week-reminder h3 {
+            margin-bottom: 10px;
+        }
+        
+        .summaries-list {
+            margin-top: 30px;
+        }
+        
+        .summary-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .summary-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 15px;
+        }
+        
+        .summary-stat {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 2em;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .user-info {
+                top: 10px;
+                right: 10px;
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+            
+            .user-info span {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner"></div>
+    </div>
+    
+    <!-- User Info (hidden initially) -->
+    <div class="user-info" id="userInfo" style="display: none;">
+        <img id="userPhoto" src="" alt="User">
+        <span id="userName"></span>
+        <button onclick="signOut()">Sign Out</button>
+    </div>
+    
+    <div class="container">
+        <h1>🌟 Exposure Therapy Progress Tracker</h1>
+        
+        <!-- Login Screen -->
+        <div id="loginScreen" class="login-container">
+            <h2>Welcome to Your Exposure Therapy Tracker</h2>
+            <p>Sign in with your Google account to securely save and access your progress from any device.</p>
+            <button id="googleSignInButton" onclick="signIn()">
+                <svg class="google-logo" viewBox="0 0 24 24">
+                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                </svg>
+                Sign in with Google
+            </button>
+        </div>
+        
+        <!-- Main App (hidden initially) -->
+        <div id="mainApp" style="display: none;">
+            <div class="tabs">
+                <button class="tab active" onclick="showSection('goals')">Life Goals</button>
+                <button class="tab" onclick="showSection('exposures')">Exposure Log</button>
+                <button class="tab" id="summaryTab" onclick="showSection('summary')">
+                    Weekly Summary
+                    <span class="notification-dot" id="weeklyNotification" style="display: none;"></span>
+                </button>
+            </div>
+            
+            <!-- Life Goals Section -->
+            <div id="goals" class="section active">
+                <h2 style="color: #5a67d8; margin-bottom: 20px;">Top 10 Life Goals Without Anxiety</h2>
+                <p style="color: #718096; margin-bottom: 30px;">What would you do if anxiety and panic didn't hold you back? Dream big!</p>
+                
+                <div id="motivationalQuote" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
+                    <p style="font-size: 20px; font-style: italic; margin-bottom: 10px;" id="quoteText">"Courage is not the absence of fear, but rather the assessment that something else is more important than fear."</p>
+                    <p style="font-size: 16px; opacity: 0.9;" id="quoteAuthor">- Franklin D. Roosevelt</p>
+                </div>
+                
+                <div class="goals-grid" id="goalsGrid">
+                    <!-- Goals will be dynamically generated -->
+                </div>
+            </div>
+            
+            <!-- Exposure Log Section -->
+            <div id="exposures" class="section">
+                <h2 style="color: #5a67d8; margin-bottom: 20px;">Log Your Exposure</h2>
+                
+                <div class="exposure-form">
+                    <div class="reference-preview" id="referencePreview">
+                        Reference Number: <span id="refNumberDisplay">-</span>
+                    </div>
+                    
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Date</label>
+                            <input type="date" id="exposureDate" required onchange="updateReferencePreview()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Time</label>
+                            <input type="time" id="exposureTime" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Exposure Situation / Trigger</label>
+                            <input type="text" id="exposureSituation" placeholder="e.g., Grocery store, elevator" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Anticipated Anxiety (0-10)</label>
+                            <input type="range" id="anticipatedAnxiety" class="anxiety-slider" min="0" max="10" value="5">
+                            <span class="slider-value" id="anticipatedValue">5</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Peak Anxiety During (0-10)</label>
+                            <input type="range" id="peakAnxiety" class="anxiety-slider" min="0" max="10" value="5">
+                            <span class="slider-value" id="peakValue">5</span>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Duration of Exposure</label>
+                            <input type="text" id="duration" placeholder="e.g., 15 minutes" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>What I Fear Will Happen</label>
+                            <textarea id="fearWillHappen" placeholder="What are you afraid might happen?"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>What Actually Happened</label>
+                            <textarea id="whatActuallyHappened" placeholder="What was the reality?"></textarea>
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>Notes or Reflections</label>
+                            <textarea id="notes" placeholder="Any additional thoughts or observations"></textarea>
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="graphAdded" style="width: 20px; height: 20px; cursor: pointer;">
+                                <span>Graph added to physical workbook</span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn" id="submitBtn" onclick="addExposure()">Add Exposure Entry</button>
+                        <button class="btn btn-secondary" id="cancelEditBtn" style="display: none;" onclick="cancelEdit()">Cancel Edit</button>
+                    </div>
+                </div>
+                
+                <div class="exposures-list" id="exposuresList">
+                    <h3 style="color: #4a5568; margin-bottom: 20px;">Your Exposure History</h3>
+                    <!-- Exposures will be displayed here -->
+                </div>
+            </div>
+            
+            <!-- Weekly Summary Section -->
+            <div id="summary" class="section">
+                <h2 style="color: #5a67d8; margin-bottom: 20px;">Weekly Progress Summary</h2>
+                
+                <div class="week-reminder" id="weekReminder" style="display: none;">
+                    <h3>🔔 Time for Your Weekly Summary!</h3>
+                    <p>It's Sunday evening - the perfect time to reflect on your week's progress and celebrate your courage!</p>
+                </div>
+                
+                <div class="summary-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Week Of</label>
+                            <input type="date" id="weekOf" required onchange="updateExposureCount()">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Number of Exposures (Auto-calculated)</label>
+                            <input type="number" id="numExposures" min="0" placeholder="0" readonly style="background: #edf2f7;">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Most Difficult Exposure</label>
+                            <input type="text" id="difficultExposure" placeholder="What was your biggest challenge?" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Confidence Rating (0-10)</label>
+                            <input type="range" id="confidenceRating" class="anxiety-slider" min="0" max="10" value="5">
+                            <span class="slider-value" id="confidenceValue">5</span>
+                        </div>
+                        
+                        <div class="form-group" style="grid-column: 1 / -1;">
+                            <label>What I Learned This Week</label>
+                            <textarea id="weeklyLearnings" placeholder="Key insights and progress from this week"></textarea>
+                        </div>
+                    </div>
+                    
+                    <button class="btn" onclick="addWeeklySummary()">Add Weekly Summary</button>
+                </div>
+                
+                <div class="summaries-list" id="summariesList">
+                    <h3 style="color: #4a5568; margin-bottom: 20px;">Your Weekly Progress</h3>
+                    <!-- Summaries will be displayed here -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Firebase Scripts -->
+    <script type="module">
+        // Import Firebase
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        import { getDatabase, ref, set, get, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+        
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCZKvgiW_EsScY8rI7D99Gxd9kMi-Vz2jI",
+            authDomain: "exposure-therapy-tracker.firebaseapp.com",
+            databaseURL: "https://exposure-therapy-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "exposure-therapy-tracker",
+            storageBucket: "exposure-therapy-tracker.firebasestorage.app",
+            messagingSenderId: "385161416023",
+            appId: "1:385161416023:web:76f676f6cf9b96cfe8c212",
+            measurementId: "G-23LLMC8CE1"
+        };
+        
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const database = getDatabase(app);
+        const provider = new GoogleAuthProvider();
+        
+        // Global variables
+        window.currentUser = null;
+        window.goals = Array(10).fill('');
+        window.exposures = [];
+        window.summaries = [];
+        window.editingExposureId = null;
+        
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                // User is signed in
+                window.currentUser = user;
+                showMainApp(user);
+                loadUserData(user.uid);
+            } else {
+                // User is signed out
+                window.currentUser = null;
+                showLoginScreen();
+            }
+            // Hide loading overlay
+            document.getElementById('loadingOverlay').style.display = 'none';
+        });
+        
+        // Sign in function
+        window.signIn = async function() {
+            try {
+                const result = await signInWithPopup(auth, provider);
+                // User will be handled by onAuthStateChanged
+            } catch (error) {
+                console.error('Sign in error:', error);
+                alert('Failed to sign in. Please try again.');
+            }
+        }
+        
+        // Sign out function
+        window.signOut = async function() {
+            try {
+                await firebaseSignOut(auth);
+                // User will be handled by onAuthStateChanged
+            } catch (error) {
+                console.error('Sign out error:', error);
+                alert('Failed to sign out. Please try again.');
+            }
+        }
+        
+        // Show main app
+        function showMainApp(user) {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('userInfo').style.display = 'flex';
+            document.getElementById('userName').textContent = user.displayName || user.email;
+            document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/32';
+            
+            // Initialize app components
+            document.getElementById('exposureDate').valueAsDate = new Date();
+            updateReferencePreview();
+            setupSliders();
+            updateMotivationalQuote();
+            setInterval(checkWeeklyReminder, 60000);
+        }
+        
+        // Show login screen
+        function showLoginScreen() {
+            document.getElementById('loginScreen').style.display = 'flex';
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('userInfo').style.display = 'none';
+        }
+        
+        // Load user data
+        function loadUserData(userId) {
+            const userRef = ref(database, 'users/' + userId);
+            const goalsRef = ref(database, 'users/' + userId + '/goals');
+            const exposuresRef = ref(database, 'users/' + userId + '/exposures');
+            const summariesRef = ref(database, 'users/' + userId + '/summaries');
+            
+            // Load goals
+            onValue(goalsRef, (snapshot) => {
+                const data = snapshot.val();
+                if (data) {
+                    window.goals = data;
+                }
+                renderGoals();
+            });
+            
+            // Load exposures
+            onValue(exposuresRef, (snapshot) => {
+                const data = snapshot.val();
+                window.exposures = data ? Object.entries(data).map(([id, exp]) => ({ ...exp, id })) : [];
+                window.exposures.sort((a, b) => new Date(b.date) - new Date(a.date));
+                renderExposures();
+                checkWeeklyReminder();
+            });
+            
+            // Load summaries
+            onValue(summariesRef, (snapshot) => {
+                const data = snapshot.val();
+                window.summaries = data ? Object.entries(data).map(([id, sum]) => ({ ...sum, id })) : [];
+                window.summaries.sort((a, b) => new Date(b.weekOf) - new Date(a.weekOf));
+                renderSummaries();
+            });
+        }
+        
+        // Save functions
+        window.saveGoals = async function() {
+            if (!window.currentUser) return;
+            
+            try {
+                await set(ref(database, 'users/' + window.currentUser.uid + '/goals'), window.goals);
+            } catch (error) {
+                console.error('Error saving goals:', error);
+                alert('Failed to save goals. Please check your connection.');
+            }
+        }
+        
+        window.saveExposure = async function(exposure) {
+            if (!window.currentUser) return;
+            
+            try {
+                const exposuresRef = ref(database, 'users/' + window.currentUser.uid + '/exposures');
+                if (exposure.id && typeof exposure.id === 'string') {
+                    await set(ref(database, 'users/' + window.currentUser.uid + '/exposures/' + exposure.id), exposure);
+                } else {
+                    const newRef = push(exposuresRef);
+                    exposure.id = newRef.key;
+                    await set(newRef, exposure);
+                }
+            } catch (error) {
+                console.error('Error saving exposure:', error);
+                alert('Failed to save exposure. Please check your connection.');
+            }
+        }
+        
+        window.deleteExposureFromDb = async function(id) {
+            if (!window.currentUser) return;
+            
+            try {
+                await remove(ref(database, 'users/' + window.currentUser.uid + '/exposures/' + id));
+            } catch (error) {
+                console.error('Error deleting exposure:', error);
+                alert('Failed to delete exposure. Please check your connection.');
+            }
+        }
+        
+        window.saveSummary = async function(summary) {
+            if (!window.currentUser) return;
+            
+            try {
+                const summariesRef = ref(database, 'users/' + window.currentUser.uid + '/summaries');
+                const newRef = push(summariesRef);
+                summary.id = newRef.key;
+                await set(newRef, summary);
+            } catch (error) {
+                console.error('Error saving summary:', error);
+                alert('Failed to save summary. Please check your connection.');
+            }
+        }
+        
+        window.deleteSummaryFromDb = async function(id) {
+            if (!window.currentUser) return;
+            
+            try {
+                await remove(ref(database, 'users/' + window.currentUser.uid + '/summaries/' + id));
+            } catch (error) {
+                console.error('Error deleting summary:', error);
+                alert('Failed to delete summary. Please check your connection.');
+            }
+        }
+        
+        // Motivational quotes
+        window.quotes = [
+            { text: "Courage is not the absence of fear, but rather the assessment that something else is more important than fear.", author: "Franklin D. Roosevelt" },
+            { text: "You gain strength, courage, and confidence by every experience in which you really stop to look fear in the face.", author: "Eleanor Roosevelt" },
+            { text: "The cave you fear to enter holds the treasure you seek.", author: "Joseph Campbell" },
+            { text: "Everything you want is on the other side of fear.", author: "Jack Canfield" },
+            { text: "Fear is only as deep as the mind allows.", author: "Japanese Proverb" },
+            { text: "You are braver than you believe, stronger than you seem, and smarter than you think.", author: "A.A. Milne" },
+            { text: "The only way out is through.", author: "Robert Frost" },
+            { text: "Feel the fear and do it anyway.", author: "Susan Jeffers" },
+            { text: "Anxiety is the dizziness of freedom.", author: "Søren Kierkegaard" },
+            { text: "You don't have to control your thoughts. You just have to stop letting them control you.", author: "Dan Millman" },
+            { text: "Every small step forward is a victory worth celebrating.", author: "Anonymous" },
+            { text: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.", author: "Tori Amos" }
+        ];
+    </script>
+    
+    <script>
+        // Non-module scripts
+        
+        // Check if weekly reminder should be shown
+        function checkWeeklyReminder() {
+            const now = new Date();
+            const dayOfWeek = now.getDay();
+            const hour = now.getHours();
+            
+            if (dayOfWeek === 0 && hour >= 21) {
+                const thisWeekStart = new Date(now);
+                thisWeekStart.setDate(now.getDate() - dayOfWeek);
+                thisWeekStart.setHours(0, 0, 0, 0);
+                
+                const hasThisWeekSummary = window.summaries.some(summary => {
+                    const summaryDate = new Date(summary.weekOf);
+                    return summaryDate >= thisWeekStart;
+                });
+                
+                if (!hasThisWeekSummary) {
+                    document.getElementById('weeklyNotification').style.display = 'block';
+                } else {
+                    document.getElementById('weeklyNotification').style.display = 'none';
+                }
+            } else {
+                document.getElementById('weeklyNotification').style.display = 'none';
+            }
+        }
+        
+        // Get week bounds
+        function getWeekBounds(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            const sunday = new Date(d.setDate(diff));
+            const saturday = new Date(d.setDate(diff + 6));
+            
+            sunday.setHours(0, 0, 0, 0);
+            saturday.setHours(23, 59, 59, 999);
+            
+            return { start: sunday, end: saturday };
+        }
+        
+        // Update exposure count
+        function updateExposureCount() {
+            const weekOfDate = document.getElementById('weekOf').value;
+            if (!weekOfDate) return;
+            
+            const { start, end } = getWeekBounds(weekOfDate);
+            
+            const exposuresInWeek = window.exposures.filter(exposure => {
+                const exposureDate = new Date(exposure.date);
+                return exposureDate >= start && exposureDate <= end;
+            });
+            
+            document.getElementById('numExposures').value = exposuresInWeek.length;
+        }
+        
+        // Generate reference number
+        function generateReferenceNumber(date = null) {
+            const refDate = date ? new Date(date) : new Date(document.getElementById('exposureDate').value);
+            const year = refDate.getFullYear().toString().slice(-2);
+            const month = (refDate.getMonth() + 1).toString().padStart(2, '0');
+            const day = refDate.getDate().toString().padStart(2, '0');
+            
+            const dateStr = `${refDate.getFullYear()}-${month}-${day}`;
+            const existingCount = window.exposures.filter(exp => exp.date === dateStr).length;
+            const exposureNum = (existingCount + 1).toString().padStart(3, '0');
+            
+            return `EXP-${year}${month}${day}-${exposureNum}`;
+        }
+        
+        // Update reference preview
+        function updateReferencePreview() {
+            const dateInput = document.getElementById('exposureDate').value;
+            if (dateInput) {
+                const refNumber = generateReferenceNumber(dateInput);
+                document.getElementById('refNumberDisplay').textContent = refNumber;
+            } else {
+                document.getElementById('refNumberDisplay').textContent = '-';
+            }
+        }
+        
+        // Update motivational quote
+        function updateMotivationalQuote() {
+            const randomQuote = window.quotes[Math.floor(Math.random() * window.quotes.length)];
+            document.getElementById('quoteText').textContent = `"${randomQuote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `- ${randomQuote.author}`;
+        }
+        
+        // Tab switching
+        function showSection(sectionName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            
+            if (sectionName === 'summary') {
+                checkWeeklyReminder();
+                const now = new Date();
+                if (now.getDay() === 0 && now.getHours() >= 21) {
+                    document.getElementById('weekReminder').style.display = 'block';
+                }
+            }
+        }
+        
+        // Goals functionality
+        function renderGoals() {
+            const goalsGrid = document.getElementById('goalsGrid');
+            goalsGrid.innerHTML = '';
+            
+            for (let i = 0; i < 10; i++) {
+                const goalCard = document.createElement('div');
+                goalCard.className = 'goal-card';
+                goalCard.setAttribute('data-number', i + 1);
+                goalCard.innerHTML = `
+                    <h3 style="margin-bottom: 10px;">Goal #${i + 1}</h3>
+                    <input type="text" 
+                           class="goal-input" 
+                           placeholder="Enter your goal..."
+                           value="${window.goals[i] || ''}"
+                           onchange="updateGoal(${i}, this.value)">
+                `;
+                goalsGrid.appendChild(goalCard);
+            }
+        }
+        
+        function updateGoal(index, value) {
+            window.goals[index] = value;
+            window.saveGoals();
+        }
+        
+        // Exposure functionality
+        function setupSliders() {
+            const anticipatedSlider = document.getElementById('anticipatedAnxiety');
+            const anticipatedValue = document.getElementById('anticipatedValue');
+            anticipatedSlider.oninput = function() {
+                anticipatedValue.textContent = this.value;
+            };
+            
+            const peakSlider = document.getElementById('peakAnxiety');
+            const peakValue = document.getElementById('peakValue');
+            peakSlider.oninput = function() {
+                peakValue.textContent = this.value;
+            };
+            
+            const confidenceSlider = document.getElementById('confidenceRating');
+            const confidenceValue = document.getElementById('confidenceValue');
+            confidenceSlider.oninput = function() {
+                confidenceValue.textContent = this.value;
+            };
+        }
+        
+        function addExposure() {
+            const exposure = {
+                date: document.getElementById('exposureDate').value,
+                time: document.getElementById('exposureTime').value,
+                situation: document.getElementById('exposureSituation').value,
+                anticipatedAnxiety: document.getElementById('anticipatedAnxiety').value,
+                peakAnxiety: document.getElementById('peakAnxiety').value,
+                duration: document.getElementById('duration').value,
+                fearWillHappen: document.getElementById('fearWillHappen').value,
+                whatActuallyHappened: document.getElementById('whatActuallyHappened').value,
+                notes: document.getElementById('notes').value,
+                graphAdded: document.getElementById('graphAdded').checked,
+                id: window.editingExposureId || null,
+                referenceNumber: window.editingExposureId ? 
+                    window.exposures.find(e => e.id === window.editingExposureId).referenceNumber : 
+                    document.getElementById('refNumberDisplay').textContent
+            };
+            
+            if (!exposure.date || !exposure.situation || !exposure.duration || !exposure.time) {
+                alert('Please fill in at least the date, time, situation, and duration fields.');
+                return;
+            }
+            
+            window.saveExposure(exposure);
+            
+            if (window.editingExposureId) {
+                window.editingExposureId = null;
+                document.getElementById('submitBtn').textContent = 'Add Exposure Entry';
+                document.getElementById('cancelEditBtn').style.display = 'none';
+            }
+            
+            clearForm();
+            updateReferencePreview();
+        }
+        
+        function clearForm() {
+            document.getElementById('exposureDate').valueAsDate = new Date();
+            document.getElementById('exposureSituation').value = '';
+            document.getElementById('exposureTime').value = '';
+            document.getElementById('anticipatedAnxiety').value = 5;
+            document.getElementById('anticipatedValue').textContent = 5;
+            document.getElementById('peakAnxiety').value = 5;
+            document.getElementById('peakValue').textContent = 5;
+            document.getElementById('duration').value = '';
+            document.getElementById('fearWillHappen').value = '';
+            document.getElementById('whatActuallyHappened').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('graphAdded').checked = false;
+        }
+        
+        function editExposure(id) {
+            const exposure = window.exposures.find(e => e.id === id);
+            if (!exposure) return;
+            
+            window.editingExposureId = id;
+            
+            document.getElementById('exposureDate').value = exposure.date;
+            document.getElementById('exposureTime').value = exposure.time;
+            document.getElementById('exposureSituation').value = exposure.situation;
+            document.getElementById('anticipatedAnxiety').value = exposure.anticipatedAnxiety;
+            document.getElementById('anticipatedValue').textContent = exposure.anticipatedAnxiety;
+            document.getElementById('peakAnxiety').value = exposure.peakAnxiety;
+            document.getElementById('peakValue').textContent = exposure.peakAnxiety;
+            document.getElementById('duration').value = exposure.duration;
+            document.getElementById('fearWillHappen').value = exposure.fearWillHappen || '';
+            document.getElementById('whatActuallyHappened').value = exposure.whatActuallyHappened || '';
+            document.getElementById('notes').value = exposure.notes || '';
+            document.getElementById('graphAdded').checked = exposure.graphAdded || false;
+            
+            document.getElementById('refNumberDisplay').textContent = exposure.referenceNumber;
+            
+            document.getElementById('submitBtn').textContent = 'Update Exposure Entry';
+            document.getElementById('cancelEditBtn').style.display = 'inline-block';
+            
+            document.querySelector('.exposure-form').scrollIntoView({ behavior: 'smooth' });
+        }
+        
+        function cancelEdit() {
+            window.editingExposureId = null;
+            document.getElementById('submitBtn').textContent = 'Add Exposure Entry';
+            document.getElementById('cancelEditBtn').style.display = 'none';
+            clearForm();
+            updateReferencePreview();
+        }
+        
+        function renderExposures() {
+            const exposuresList = document.getElementById('exposuresList');
+            
+            if (window.exposures.length === 0) {
+                exposuresList.innerHTML = '<p style="color: #718096;">No exposures logged yet. Start tracking your progress!</p>';
+                return;
+            }
+            
+            exposuresList.innerHTML = '<h3 style="color: #4a5568; margin-bottom: 20px;">Your Exposure History</h3>';
+            
+            window.exposures.forEach(exposure => {
+                const anxietyClass = exposure.peakAnxiety <= 3 ? 'anxiety-low' : 
+                                   exposure.peakAnxiety <= 6 ? 'anxiety-medium' : 'anxiety-high';
+                
+                const exposureItem = document.createElement('div');
+                exposureItem.className = 'exposure-item';
+                exposureItem.innerHTML = `
+                    <div class="exposure-header">
+                        <span class="exposure-date">${new Date(exposure.date).toLocaleDateString()} at ${exposure.time}</span>
+                        <div>
+                            <span class="anxiety-badge ${anxietyClass}">Peak: ${exposure.peakAnxiety}/10</span>
+                            <button onclick="editExposure('${exposure.id}')" class="btn btn-edit" style="margin-left: 10px;">Edit</button>
+                            <button onclick="deleteExposure('${exposure.id}')" style="margin-left: 10px; background: #e53e3e; color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer;">Delete</button>
+                        </div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h4 style="color: #2d3748; margin: 0;">${exposure.situation}</h4>
+                        <span style="background: #edf2f7; color: #4a5568; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
+                            ${exposure.referenceNumber || 'No Ref #'}
+                        </span>
+                    </div>
+                    ${exposure.graphAdded ? '<p style="color: #48bb78; font-weight: 600; margin-bottom: 10px;">✓ Graph added to physical workbook</p>' : ''}
+                    <div style="display: grid; gap: 10px; color: #4a5568;">
+                        <p><strong>Duration:</strong> ${exposure.duration}</p>
+                        <p><strong>Anticipated vs Peak Anxiety:</strong> ${exposure.anticipatedAnxiety}/10 → ${exposure.peakAnxiety}/10</p>
+                        ${exposure.fearWillHappen ? `<p><strong>What I Feared Would Happen:</strong> ${exposure.fearWillHappen}</p>` : ''}
+                        ${exposure.whatActuallyHappened ? `<p><strong>What Actually Happened:</strong> ${exposure.whatActuallyHappened}</p>` : ''}
+                        ${exposure.notes ? `<p><strong>Notes:</strong> ${exposure.notes}</p>` : ''}
+                    </div>
+                `;
+                exposuresList.appendChild(exposureItem);
+            });
+        }
+        
+        function deleteExposure(id) {
+            if (confirm('Are you sure you want to delete this exposure?')) {
+                window.deleteExposureFromDb(id);
+            }
+        }
+        
+        // Weekly Summary functionality
+        function addWeeklySummary() {
+            const summary = {
+                weekOf: document.getElementById('weekOf').value,
+                numExposures: document.getElementById('numExposures').value,
+                difficultExposure: document.getElementById('difficultExposure').value,
+                confidenceRating: document.getElementById('confidenceRating').value,
+                learnings: document.getElementById('weeklyLearnings').value
+            };
+            
+            if (!summary.weekOf || !summary.difficultExposure) {
+                alert('Please fill in at least the week and most difficult exposure.');
+                return;
+            }
+            
+            window.saveSummary(summary);
+            
+            document.getElementById('weekOf').value = '';
+            document.getElementById('numExposures').value = '';
+            document.getElementById('difficultExposure').value = '';
+            document.getElementById('confidenceRating').value = 5;
+            document.getElementById('confidenceValue').textContent = 5;
+            document.getElementById('weeklyLearnings').value = '';
+            
+            document.getElementById('weekReminder').style.display = 'none';
+        }
+        
+        function renderSummaries() {
+            const summariesList = document.getElementById('summariesList');
+            
+            if (window.summaries.length === 0) {
+                summariesList.innerHTML = '<p style="color: #718096;">No weekly summaries yet. Complete your first week to add a summary!</p>';
+                return;
+            }
+            
+            summariesList.innerHTML = '<h3 style="color: #4a5568; margin-bottom: 20px;">Your Weekly Progress</h3>';
+            
+            window.summaries.forEach(summary => {
+                const summaryItem = document.createElement('div');
+                summaryItem.className = 'summary-item';
+                summaryItem.innerHTML = `
+                    <div class="summary-header">
+                        Week of ${new Date(summary.weekOf).toLocaleDateString()}
+                        <button onclick="deleteSummary('${summary.id}')" style="float: right; background: rgba(255,255,255,0.3); color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer;">Delete</button>
+                    </div>
+                    <div>
+                        <span class="summary-stat">${summary.numExposures} Exposures</span>
+                        <span class="summary-stat">Confidence: ${summary.confidenceRating}/10</span>
+                    </div>
+                    <p style="margin-top: 15px;"><strong>Most Challenging:</strong> ${summary.difficultExposure}</p>
+                    ${summary.learnings ? `<p style="margin-top: 10px;"><strong>Key Learnings:</strong> ${summary.learnings}</p>` : ''}
+                `;
+                summariesList.appendChild(summaryItem);
+            });
+        }
+        
+        function deleteSummary(id) {
+            if (confirm('Are you sure you want to delete this weekly summary?')) {
+                window.deleteSummaryFromDb(id);
+            }
+        }
+    </script>
+</body>
+</html>
