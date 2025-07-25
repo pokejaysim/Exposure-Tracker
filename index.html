@@ -792,7 +792,11 @@
             document.getElementById('userPhoto').src = user.photoURL || 'https://via.placeholder.com/32';
             
             // Initialize app components
-            document.getElementById('exposureDate').valueAsDate = new Date();
+            const today = new Date();
+            const dateStr = today.getFullYear() + '-' + 
+                          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                          String(today.getDate()).padStart(2, '0');
+            document.getElementById('exposureDate').value = dateStr;
             updateReferencePreview();
             setupSliders();
             updateMotivationalQuote();
@@ -925,6 +929,16 @@
     
     <script>
         // Non-module scripts
+        
+        // Convert 24h time to 12h AM/PM format
+        function formatTime12Hour(time24) {
+            if (!time24) return '';
+            const [hours, minutes] = time24.split(':');
+            const hour = parseInt(hours);
+            const ampm = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour % 12 || 12;
+            return `${hour12}:${minutes} ${ampm}`;
+        }
         
         // Check if weekly reminder should be shown
         function checkWeeklyReminder() {
@@ -1113,7 +1127,11 @@
         }
         
         function clearForm() {
-            document.getElementById('exposureDate').valueAsDate = new Date();
+            const today = new Date();
+            const dateStr = today.getFullYear() + '-' + 
+                          String(today.getMonth() + 1).padStart(2, '0') + '-' + 
+                          String(today.getDate()).padStart(2, '0');
+            document.getElementById('exposureDate').value = dateStr;
             document.getElementById('exposureSituation').value = '';
             document.getElementById('exposureTime').value = '';
             document.getElementById('anticipatedAnxiety').value = 5;
@@ -1180,7 +1198,7 @@
                 exposureItem.className = 'exposure-item';
                 exposureItem.innerHTML = `
                     <div class="exposure-header">
-                        <span class="exposure-date">${new Date(exposure.date).toLocaleDateString()} at ${exposure.time}</span>
+                        <span class="exposure-date">${new Date(exposure.date).toLocaleDateString()} at ${formatTime12Hour(exposure.time)}</span>
                         <div>
                             <span class="anxiety-badge ${anxietyClass}">Peak: ${exposure.peakAnxiety}/10</span>
                             <button onclick="editExposure('${exposure.id}')" class="btn btn-edit" style="margin-left: 10px;">Edit</button>
