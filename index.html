@@ -940,6 +940,14 @@
             return `${hour12}:${minutes} ${ampm}`;
         }
         
+        // Format date string (YYYY-MM-DD) to display format
+        function formatDate(dateStr) {
+            if (!dateStr) return '';
+            const [year, month, day] = dateStr.split('-');
+            const date = new Date(year, month - 1, day); // month is 0-indexed
+            return date.toLocaleDateString();
+        }
+        
         // Check if weekly reminder should be shown
         function checkWeeklyReminder() {
             const now = new Date();
@@ -1092,8 +1100,11 @@
         }
         
         function addExposure() {
+            // Get the date value directly from the input (YYYY-MM-DD format)
+            const dateValue = document.getElementById('exposureDate').value;
+            
             const exposure = {
-                date: document.getElementById('exposureDate').value,
+                date: dateValue, // Store the date string directly without conversion
                 time: document.getElementById('exposureTime').value,
                 situation: document.getElementById('exposureSituation').value,
                 anticipatedAnxiety: document.getElementById('anticipatedAnxiety').value,
@@ -1198,7 +1209,7 @@
                 exposureItem.className = 'exposure-item';
                 exposureItem.innerHTML = `
                     <div class="exposure-header">
-                        <span class="exposure-date">${new Date(exposure.date).toLocaleDateString()} at ${formatTime12Hour(exposure.time)}</span>
+                        <span class="exposure-date">${formatDate(exposure.date)} at ${formatTime12Hour(exposure.time)}</span>
                         <div>
                             <span class="anxiety-badge ${anxietyClass}">Peak: ${exposure.peakAnxiety}/10</span>
                             <button onclick="editExposure('${exposure.id}')" class="btn btn-edit" style="margin-left: 10px;">Edit</button>
@@ -1272,7 +1283,7 @@
                 summaryItem.className = 'summary-item';
                 summaryItem.innerHTML = `
                     <div class="summary-header">
-                        Week of ${new Date(summary.weekOf).toLocaleDateString()}
+                        Week of ${formatDate(summary.weekOf)}
                         <button onclick="deleteSummary('${summary.id}')" style="float: right; background: rgba(255,255,255,0.3); color: white; border: none; padding: 5px 15px; border-radius: 20px; cursor: pointer;">Delete</button>
                     </div>
                     <div>
