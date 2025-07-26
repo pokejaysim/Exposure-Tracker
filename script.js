@@ -1,273 +1,10 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235a67d8'/><text x='50' y='50' font-size='50' text-anchor='middle' dy='.35em' fill='white'>🌟</text></svg>">
-    <meta name="theme-color" content="#5a67d8">
-    <title>Exposure Therapy Progress Tracker</title>
-     <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <!-- Loading Overlay -->
-    <div class="loading-overlay" id="loadingOverlay">
-        <div class="loading-spinner"></div>
-    </div>
-    
-    <!-- User Info (hidden initially) -->
-    <div class="user-info" id="userInfo" style="display: none;">
-        <img id="userPhoto" src="" alt="User profile photo">
-        <span id="userName"></span>
-        <button onclick="signOut()">Sign Out</button>
-    </div>
-    
-    <div class="container">
-        <h1>🌟 Exposure Therapy Progress Tracker</h1>
-        
-        <!-- Login Screen -->
-        <div id="loginScreen" class="login-container">
-            <h2>Welcome to Your Exposure Therapy Tracker</h2>
-            <p>Sign in with your Google account to securely save and access your progress from any device.</p>
-            <button id="googleSignInButton" onclick="signIn()">
-                <svg class="google-logo" viewBox="0 0 24 24">
-                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                </svg>
-                Sign in with Google
-            </button>
-        </div>
-        
-        <!-- Main App (hidden initially) -->
-        <div id="mainApp" style="display: none;">
-            <!-- Export Button -->
-            <button class="export-button" onclick="showExportOptions()">
-                📥 Export Data
-            </button>
-            
-            <div class="tabs">
-                <button class="tab active" onclick="showSection('goals')">Life Goals</button>
-                <button class="tab" onclick="showSection('exposures')">Exposure Log</button>
-                <button class="tab" id="summaryTab" onclick="showSection('summary')">
-                    Weekly Summary
-                    <span class="notification-dot" id="weeklyNotification" style="display: none;"></span>
-                </button>
-            </div>
-            
-            <!-- Life Goals Section -->
-            <div id="goals" class="section active">
-                <h2 style="color: #5a67d8; margin-bottom: 20px;">Top 10 Life Goals Without Anxiety</h2>
-                <p style="color: #718096; margin-bottom: 30px;">What would you do if anxiety and panic didn't hold you back? Dream big!</p>
-                
-                <div id="motivationalQuote" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 25px; border-radius: 15px; margin-bottom: 30px; text-align: center; box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);">
-                    <p style="font-size: 20px; font-style: italic; margin-bottom: 10px;" id="quoteText">"Courage is not the absence of fear, but rather the assessment that something else is more important than fear."</p>
-                    <p style="font-size: 16px; opacity: 0.9;" id="quoteAuthor">- Franklin D. Roosevelt</p>
-                </div>
-                
-                <div class="goals-grid" id="goalsGrid">
-                    <!-- Goals will be dynamically generated -->
-                </div>
-            </div>
-            
-            <!-- Exposure Log Section -->
-            <div id="exposures" class="section">
-                <h2 style="color: #5a67d8; margin-bottom: 20px;">Log Your Exposure</h2>
-                
-                <div class="exposure-form">
-                    <div class="reference-preview" id="referencePreview">
-                        Reference Number: <span id="refNumberDisplay">-</span>
-                    </div>
-                    
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Date</label>
-                            <input type="date" id="exposureDate" required onchange="updateReferencePreview()">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Time</label>
-                            <input type="time" id="exposureTime" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Exposure Situation / Trigger</label>
-                            <input type="text" id="exposureSituation" placeholder="e.g., Grocery store, elevator" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Anticipated Anxiety (0-10)</label>
-                            <input type="range" id="anticipatedAnxiety" class="anxiety-slider" min="0" max="10" value="5" step="0.5">
-                            <span class="slider-value" id="anticipatedValue">5</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Peak Anxiety During (0-10)</label>
-                            <input type="range" id="peakAnxiety" class="anxiety-slider" min="0" max="10" value="5" step="0.5">
-                            <span class="slider-value" id="peakValue">5</span>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Duration of Exposure</label>
-                            <input type="text" id="duration" placeholder="e.g., 15 minutes" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>What I Fear Will Happen</label>
-                            <textarea id="fearWillHappen" placeholder="What are you afraid might happen?"></textarea>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>What Actually Happened</label>
-                            <textarea id="whatActuallyHappened" placeholder="What was the reality?"></textarea>
-                        </div>
-                        
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>Notes or Reflections</label>
-                            <textarea id="notes" placeholder="Any additional thoughts or observations"></textarea>
-                        </div>
-                        
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                                <input type="checkbox" id="graphAdded" style="width: 20px; height: 20px; cursor: pointer;">
-                                <span>Graph added to physical workbook</span>
-                            </label>
-                        </div>
-                    </div>
-                    
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn" id="submitBtn" onclick="addExposure()">Add Exposure Entry</button>
-                        <button class="btn btn-secondary" id="cancelEditBtn" style="display: none;" onclick="cancelEdit()">Cancel Edit</button>
-                    </div>
-                </div>
-                
-                <div class="exposures-list" id="exposuresList">
-                    <h3 style="color: #4a5568; margin-bottom: 20px;">Your Exposure History</h3>
-                    
-                    <!-- Search and Filter Container -->
-                    <div class="search-filter-container" id="searchFilterContainer">
-                        <input type="text" 
-                               class="search-input" 
-                               id="searchInput" 
-                               placeholder="Search exposures..."
-                               onkeyup="filterExposures()">
-                        
-                        <select class="filter-select" id="anxietyFilter" onchange="filterExposures()">
-                            <option value="">All Anxiety Levels</option>
-                            <option value="low">Low (0-3)</option>
-                            <option value="medium">Medium (4-6)</option>
-                            <option value="high">High (7-10)</option>
-                        </select>
-                        
-                        <select class="filter-select" id="dateFilter" onchange="filterExposures()">
-                            <option value="">All Dates</option>
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                            <option value="3months">Last 3 Months</option>
-                        </select>
-                        
-                        <button class="clear-filters" onclick="clearFilters()">Clear Filters</button>
-                        
-                        <div class="results-count" id="resultsCount"></div>
-                    </div>
-                    
-                    <div id="exposuresContainer">
-                        <!-- Exposures will be displayed here -->
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Weekly Summary Section -->
-            <div id="summary" class="section">
-                <h2 style="color: #5a67d8; margin-bottom: 20px;">Weekly Progress Summary</h2>
-                
-                <div class="week-reminder" id="weekReminder" style="display: none;">
-                    <h3>🔔 Time for Your Weekly Summary!</h3>
-                    <p>It's Sunday evening - the perfect time to reflect on your week's progress and celebrate your courage!</p>
-                </div>
-                
-                <div class="summary-form">
-                    <div class="form-grid">
-                        <div class="form-group">
-                            <label>Week Of</label>
-                            <input type="date" id="weekOf" required onchange="updateExposureCount()">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Number of Exposures (Auto-calculated)</label>
-                            <input type="number" id="numExposures" min="0" placeholder="0" readonly style="background: #edf2f7;">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Most Difficult Exposure</label>
-                            <input type="text" id="difficultExposure" placeholder="What was your biggest challenge?" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Confidence Rating (0-10)</label>
-                            <input type="range" id="confidenceRating" class="anxiety-slider" min="0" max="10" value="5" step="0.5">
-                            <span class="slider-value" id="confidenceValue">5</span>
-                        </div>
-                        
-                        <div class="form-group" style="grid-column: 1 / -1;">
-                            <label>What I Learned This Week</label>
-                            <textarea id="weeklyLearnings" placeholder="Key insights and progress from this week"></textarea>
-                        </div>
-                    </div>
-                    
-                    <button class="btn" onclick="addWeeklySummary()">Add Weekly Summary</button>
-                </div>
-                
-                <div class="summaries-list" id="summariesList">
-                    <h3 style="color: #4a5568; margin-bottom: 20px;">Your Weekly Progress</h3>
-                    <!-- Summaries will be displayed here -->
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Mobile Navigation -->
-    <nav class="mobile-nav" id="mobileNav">
-        <div class="mobile-nav-items">
-            <button class="mobile-nav-item active" onclick="showSection('goals', true)">
-                <span class="mobile-nav-icon">🎯</span>
-                <span>Goals</span>
-            </button>
-            <button class="mobile-nav-item" onclick="showSection('exposures', true)">
-                <span class="mobile-nav-icon">📝</span>
-                <span>Log</span>
-            </button>
-            <button class="mobile-nav-item" onclick="showSection('summary', true)">
-                <span class="mobile-nav-icon">📊</span>
-                <span>Summary</span>
-                <span class="notification-dot" id="mobileWeeklyNotification" style="display: none; position: absolute; top: 5px; right: 20px;"></span>
-            </button>
-        </div>
-    </nav>
-    
-    <!-- Firebase Scripts -->
-    <script type="module">
-        // Import Firebase
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, signOut as firebaseSignOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
         import { getDatabase, ref, set, get, onValue, push, remove } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
         
-        // Your Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyCZKvgiW_EsScY8rI7D99Gxd9kMi-Vz2jI",
-            authDomain: "exposure-therapy-tracker.firebaseapp.com",
-            databaseURL: "https://exposure-therapy-tracker-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "exposure-therapy-tracker",
-            storageBucket: "exposure-therapy-tracker.firebasestorage.app",
-            messagingSenderId: "385161416023",
-            appId: "1:385161416023:web:76f676f6cf9b96cfe8c212",
-            measurementId: "G-23LLMC8CE1"
-        };
-        
-        // Initialize Firebase
+        import { firebaseConfig } from './firebase-config.js';
+
+// Initialize Firebase
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const database = getDatabase(app);
@@ -460,10 +197,7 @@
             { text: "Every small step forward is a victory worth celebrating.", author: "Anonymous" },
             { text: "Healing takes courage, and we all have courage, even if we have to dig a little to find it.", author: "Tori Amos" }
         ];
-    </script>
-    
-    <script>
-        // Non-module scripts
+// Non-module scripts
         
         // Convert 24h time to 12h AM/PM format
         function formatTime12Hour(time24) {
@@ -577,27 +311,12 @@
         }
         
         // Tab switching
-        function showSection(sectionName) {
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            if (event && event.target) event.target.classList.add('active');
-            
-            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-            document.getElementById(sectionName).classList.add('active');
-            
-            if (sectionName === 'summary') {
-                checkWeeklyReminder();
-                const now = new Date();
-                if (now.getDay() === 0 && now.getHours() >= 21) {
-                    document.getElementById('weekReminder').style.display = 'block';
-                }
-            }
-        }
-        
-        // Mobile navigation
-        function showSectionMobile(sectionName) {
+        function showSection(sectionName, isMobile = false) {
             // Update mobile nav buttons
-            document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.mobile-nav-item').classList.add('active');
+            if(isMobile){
+                document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+                event.target.closest('.mobile-nav-item').classList.add('active');
+            }
             
             // Update desktop tabs to match
             document.querySelectorAll('.tab').forEach(tab => {
@@ -612,7 +331,9 @@
             document.getElementById(sectionName).classList.add('active');
             
             // Scroll to top on mobile
-            window.scrollTo(0, 0);
+            if(isMobile){
+                window.scrollTo(0, 0);
+            }
             
             if (sectionName === 'summary') {
                 checkWeeklyReminder();
@@ -626,7 +347,7 @@
         // Goals functionality
         function renderGoals() {
             const goalsGrid = document.getElementById('goalsGrid');
-            goalsGrid.innerHTML = '';
+            goalsGrid.textContent = '';
             
             for (let i = 0; i < 10; i++) {
                 const goalCard = document.createElement('div');
@@ -767,7 +488,7 @@
             
             if (window.exposures.length === 0) {
                 searchContainer.style.display = 'none';
-                document.getElementById('exposuresContainer').innerHTML = '<p style="color: #718096;">No exposures logged yet. Start tracking your progress!</p>';
+                document.getElementById('exposuresContainer').textContent = '<p style="color: #718096;">No exposures logged yet. Start tracking your progress!</p>';
                 return;
             }
             
@@ -813,7 +534,7 @@
             const summariesList = document.getElementById('summariesList');
             
             if (window.summaries.length === 0) {
-                summariesList.innerHTML = '<p style="color: #718096;">No weekly summaries yet. Complete your first week to add a summary!</p>';
+                summariesList.textContent = '<p style="color: #718096;">No weekly summaries yet. Complete your first week to add a summary!</p>';
                 return;
             }
             
@@ -1090,14 +811,14 @@
             const resultsCount = document.getElementById('resultsCount');
             
             if (filteredExposures.length === 0) {
-                container.innerHTML = '<p style="color: #718096;">No exposures match your filters.</p>';
+                container.textContent = '<p style="color: #718096;">No exposures match your filters.</p>';
                 resultsCount.textContent = 'No results found';
                 return;
             }
             
             resultsCount.textContent = `Showing ${filteredExposures.length} of ${window.exposures.length} exposures`;
             
-            container.innerHTML = '';
+            container.textContent = '';
             filteredExposures.forEach(exposure => {
                 const anxietyClass = exposure.peakAnxiety <= 3 ? 'anxiety-low' : 
                                    exposure.peakAnxiety <= 6 ? 'anxiety-medium' : 'anxiety-high';
@@ -1114,23 +835,16 @@
                         </div>
                     </div>
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                        <h4 style="color: #2d3748; margin: 0;">${exposure.situation}</h4>
-                        <span style="background: #edf2f7; color: #4a5568; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">
-                            ${exposure.referenceNumber || 'No Ref #'}
-                        </span>
+                        <h4 style="color: #2d3748; margin: 0;">${exposure.situation} <span style="background: #edf2f7; color: #4a5568; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: 600;">${exposure.referenceNumber || 'No Ref #'}</span></h4>
+                        
                     </div>
-                    ${exposure.graphAdded ? '<p style="color: #48bb78; font-weight: 600; margin-bottom: 10px;">✓ Graph added to physical workbook</p>' : ''}
-                    <div style="display: grid; gap: 10px; color: #4a5568;">
-                        <p><strong>Duration:</strong> ${exposure.duration}</p>
-                        <p><strong>Anticipated vs Peak Anxiety:</strong> ${exposure.anticipatedAnxiety}/10 → ${exposure.peakAnxiety}/10</p>
-                        ${exposure.fearWillHappen ? `<p><strong>What I Feared Would Happen:</strong> ${exposure.fearWillHappen}</p>` : ''}
-                        ${exposure.whatActuallyHappened ? `<p><strong>What Actually Happened:</strong> ${exposure.whatActuallyHappened}</p>` : ''}
-                        ${exposure.notes ? `<p><strong>Notes:</strong> ${exposure.notes}</p>` : ''}
-                    </div>
+                    <p style="margin-bottom: 10px; color: #4a5568;"><strong>Anticipated Anxiety:</strong> ${exposure.anticipatedAnxiety}/10</p>
+                    <p style="margin-bottom: 10px; color: #4a5568;"><strong>Duration:</strong> ${exposure.duration}</p>
+                    ${exposure.fearWillHappen ? `<p style="margin-bottom: 10px; color: #4a5568;"><strong>What I Feared Would Happen:</strong> ${exposure.fearWillHappen}</p>` : ''}
+                    ${exposure.whatActuallyHappened ? `<p style="margin-bottom: 10px; color: #4a5568;"><strong>What Actually Happened:</strong> ${exposure.whatActuallyHappened}</p>` : ''}
+                    ${exposure.notes ? `<p style="margin-bottom: 10px; color: #4a5568;"><strong>Notes:</strong> ${exposure.notes}</p>` : ''}
+                    ${exposure.graphAdded ? '<p style="color: #48bb78; font-weight: bold;">✓ Graph added to physical workbook</p>' : ''}
                 `;
                 container.appendChild(exposureItem);
             });
         }
-    </script>
-</body>
-</html>
