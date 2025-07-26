@@ -102,7 +102,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
             onValue(exposuresRef, (snapshot) => {
                 const data = snapshot.val();
                 window.exposures = data ? Object.entries(data).map(([id, exp]) => ({ ...exp, id })) : [];
-                window.exposures.sort((a, b) => new Date(b.date) - new Date(a.date));
+                window.exposures.sort((a, b) => parseDateString(b.date) - parseDateString(a.date));
                 renderExposures();
                 checkWeeklyReminder();
             });
@@ -208,13 +208,23 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
             const hour12 = hour % 12 || 12;
             return `${hour12}:${minutes} ${ampm}`;
         }
+
+        // Helper function to parse YYYY-MM-DD string as local time
+        function parseDateString(dateStr) {
+            if (!dateStr) return null;
+            const [year, month, day] = dateStr.split('-').map(Number);
+            return new Date(year, month - 1, day);
+        }
         
         // Format date string (YYYY-MM-DD) to display format
         function formatDate(dateStr) {
             if (!dateStr) return '';
-            const [year, month, day] = dateStr.split('-');
-            const date = new Date(year, month - 1, day); // month is 0-indexed
-            return date.toLocaleDateString();
+            const date = parseDateString(dateStr);
+            if (!date) return '';
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${month}/${day}/${year}`;
         }
         
         // Check if weekly reminder should be shown
@@ -229,7 +239,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
                 thisWeekStart.setHours(0, 0, 0, 0);
                 
                 const hasThisWeekSummary = window.summaries.some(summary => {
-                    const summaryDate = new Date(summary.weekOf);
+                    const summaryDate = parseDateString(summary.weekOf);
                     return summaryDate >= thisWeekStart;
                 });
                 
@@ -251,7 +261,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
         
         // Get week bounds
         function getWeekBounds(date) {
-            const d = new Date(date);
+            const d = parseDateString(date);
             const day = d.getDay();
             const diff = d.getDate() - day;
             const sunday = new Date(d.setDate(diff));
@@ -271,7 +281,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
             const { start, end } = getWeekBounds(weekOfDate);
             
             const exposuresInWeek = window.exposures.filter(exposure => {
-                const exposureDate = new Date(exposure.date);
+                const exposureDate = parseDateString(exposure.date);
                 return exposureDate >= start && exposureDate <= end;
             });
             
@@ -280,7 +290,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
         
         // Generate reference number
         function generateReferenceNumber(date = null) {
-            const refDate = date ? new Date(date) : new Date(document.getElementById('exposureDate').value);
+            const refDate = date ? parseDateString(date) : parseDateString(document.getElementById('exposureDate').value);
             const year = refDate.getFullYear().toString().slice(-2);
             const month = (refDate.getMonth() + 1).toString().padStart(2, '0');
             const day = refDate.getDate().toString().padStart(2, '0');
@@ -771,7 +781,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
                 // Date filter
                 let dateMatch = true;
                 if (dateRange) {
-                    const exposureDate = new Date(exposure.date);
+                    const exposureDate = parseDateString(exposure.date);
                     const today = new Date();
                     today.setHours(0, 0, 0, 0);
                     
