@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235a67d8'/><text x='50' y='50' font-size='50' text-anchor='middle' dy='.35em' fill='white'>🌟</text></svg>">
+    <meta name="theme-color" content="#5a67d8">
     <title>Exposure Therapy Progress Tracker</title>
     <style>
         * {
@@ -15,8 +19,14 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            min-height: -webkit-fill-available;
             padding: 20px;
             color: #333;
+            -webkit-overflow-scrolling: touch;
+        }
+        
+        html {
+            height: -webkit-fill-available;
         }
         
         .container {
@@ -593,29 +603,290 @@
             }
         }
         
+        /* Mobile-specific styles */
+        @supports (-webkit-touch-callout: none) {
+            /* iOS specific fixes */
+            input[type="date"],
+            input[type="time"] {
+                min-height: 50px;
+                font-size: 16px;
+            }
+        }
+        
         /* Responsive */
         @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
             .container {
-                padding: 20px;
+                padding: 15px;
+                border-radius: 15px;
             }
             
             h1 {
-                font-size: 2em;
+                font-size: 1.5em;
+                margin-bottom: 20px;
+            }
+            
+            .tabs {
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+            
+            .tab {
+                padding: 10px 16px;
+                font-size: 14px;
+                flex: 1;
+                text-align: center;
+                min-width: unset;
             }
             
             .form-grid {
                 grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .form-group input,
+            .form-group textarea,
+            .form-group select {
+                font-size: 16px; /* Prevents zoom on iOS */
+                padding: 15px;
+            }
+            
+            .btn {
+                width: 100%;
+                padding: 16px;
+                font-size: 18px;
+            }
+            
+            .btn-secondary {
+                margin-top: 10px;
+            }
+            
+            .exposure-form {
+                padding: 20px;
+            }
+            
+            .exposure-item {
+                padding: 15px;
+            }
+            
+            .exposure-header {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            
+            .exposure-header > div {
+                display: flex;
+                gap: 8px;
+                flex-wrap: wrap;
             }
             
             .user-info {
-                top: 10px;
-                right: 10px;
-                font-size: 14px;
-                padding: 8px 16px;
+                position: static;
+                margin-bottom: 15px;
+                border-radius: 15px;
+                justify-content: space-between;
             }
             
             .user-info span {
+                display: block;
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .export-button {
+                bottom: 70px;
+                right: 15px;
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+            
+            .search-filter-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .search-input {
+                width: 100%;
+                font-size: 16px;
+            }
+            
+            .filter-select {
+                width: 100%;
+                font-size: 16px;
+            }
+            
+            .clear-filters {
+                width: 100%;
+            }
+            
+            .goals-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .goal-card {
+                padding: 15px;
+            }
+            
+            .summary-form {
+                padding: 20px;
+            }
+            
+            .week-reminder {
+                padding: 15px;
+                font-size: 14px;
+            }
+            
+            #motivationalQuote {
+                padding: 20px;
+            }
+            
+            #motivationalQuote p:first-child {
+                font-size: 16px;
+            }
+            
+            /* Touch-friendly buttons */
+            button {
+                min-height: 44px;
+                min-width: 44px;
+            }
+            
+            /* Better spacing for mobile forms */
+            .form-group {
+                margin-bottom: 5px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+                margin-bottom: 5px;
+            }
+            
+            /* Slider improvements for mobile */
+            .anxiety-slider {
+                height: 12px;
+            }
+            
+            .anxiety-slider::-webkit-slider-thumb {
+                width: 28px;
+                height: 28px;
+            }
+            
+            /* Mobile-friendly anxiety badge */
+            .anxiety-badge {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+            
+            /* Improve edit/delete button visibility on mobile */
+            .btn-edit,
+            .exposure-item button {
+                min-width: 60px;
+                padding: 8px 12px;
+            }
+            
+            /* Better reference number display */
+            .reference-preview {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            /* Stack buttons on mobile */
+            .exposure-form > div:last-child {
+                flex-direction: column;
+            }
+            
+            /* Hide less important info on very small screens */
+            @media (max-width: 375px) {
+                .reference-preview {
+                    display: none;
+                }
+                
+                h1 {
+                    font-size: 1.25em;
+                }
+                
+                .tab {
+                    padding: 8px 12px;
+                    font-size: 13px;
+                }
+            }
+        }
+        
+        /* Improve touch targets */
+        @media (pointer: coarse) {
+            input[type="checkbox"] {
+                width: 24px;
+                height: 24px;
+            }
+            
+            .slider-value {
+                font-size: 18px;
+                margin-left: 15px;
+            }
+        }
+        
+        /* Mobile bottom navigation */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+            z-index: 100;
+        }
+        
+        .mobile-nav-items {
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+        }
+        
+        .mobile-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+            border: none;
+            background: none;
+            color: #718096;
+            font-size: 12px;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .mobile-nav-item.active {
+            color: #5a67d8;
+        }
+        
+        .mobile-nav-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+        
+        @media (max-width: 768px) {
+            .tabs {
                 display: none;
+            }
+            
+            .mobile-nav {
+                display: block;
+            }
+            
+            .container {
+                margin-bottom: 80px;
+            }
+            
+            .export-button {
+                bottom: 90px;
             }
         }
     </style>
@@ -838,6 +1109,25 @@
             </div>
         </div>
     </div>
+    
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobileNav">
+        <div class="mobile-nav-items">
+            <button class="mobile-nav-item active" onclick="showSectionMobile('goals')">
+                <span class="mobile-nav-icon">🎯</span>
+                <span>Goals</span>
+            </button>
+            <button class="mobile-nav-item" onclick="showSectionMobile('exposures')">
+                <span class="mobile-nav-icon">📝</span>
+                <span>Log</span>
+            </button>
+            <button class="mobile-nav-item" onclick="showSectionMobile('summary')">
+                <span class="mobile-nav-icon">📊</span>
+                <span>Summary</span>
+                <span class="notification-dot" id="mobileWeeklyNotification" style="display: none; position: absolute; top: 5px; right: 20px;"></span>
+            </button>
+        </div>
+    </nav>
     
     <!-- Firebase Scripts -->
     <script type="module">
@@ -1092,11 +1382,17 @@
                 
                 if (!hasThisWeekSummary) {
                     document.getElementById('weeklyNotification').style.display = 'block';
+                    const mobileNotification = document.getElementById('mobileWeeklyNotification');
+                    if (mobileNotification) mobileNotification.style.display = 'block';
                 } else {
                     document.getElementById('weeklyNotification').style.display = 'none';
+                    const mobileNotification = document.getElementById('mobileWeeklyNotification');
+                    if (mobileNotification) mobileNotification.style.display = 'none';
                 }
             } else {
                 document.getElementById('weeklyNotification').style.display = 'none';
+                const mobileNotification = document.getElementById('mobileWeeklyNotification');
+                if (mobileNotification) mobileNotification.style.display = 'none';
             }
         }
         
@@ -1164,10 +1460,40 @@
         // Tab switching
         function showSection(sectionName) {
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            event.target.classList.add('active');
+            if (event && event.target) event.target.classList.add('active');
             
             document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
             document.getElementById(sectionName).classList.add('active');
+            
+            if (sectionName === 'summary') {
+                checkWeeklyReminder();
+                const now = new Date();
+                if (now.getDay() === 0 && now.getHours() >= 21) {
+                    document.getElementById('weekReminder').style.display = 'block';
+                }
+            }
+        }
+        
+        // Mobile navigation
+        function showSectionMobile(sectionName) {
+            // Update mobile nav buttons
+            document.querySelectorAll('.mobile-nav-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.mobile-nav-item').classList.add('active');
+            
+            // Update desktop tabs to match
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.toLowerCase().includes(sectionName.substring(0, 4))) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Show the section
+            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+            document.getElementById(sectionName).classList.add('active');
+            
+            // Scroll to top on mobile
+            window.scrollTo(0, 0);
             
             if (sectionName === 'summary') {
                 checkWeeklyReminder();
@@ -1401,15 +1727,63 @@
         
         // Export functionality
         function showExportOptions() {
-            const format = prompt('Choose export format:\n1. CSV (for Excel)\n2. JSON (for backup)\n3. PDF (for printing)\n\nEnter 1, 2, or 3:');
+            // Create a mobile-friendly modal instead of using prompt
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.5);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 1000;
+                padding: 20px;
+            `;
             
-            if (format === '1') {
-                exportToCSV();
-            } else if (format === '2') {
-                exportToJSON();
-            } else if (format === '3') {
-                exportToPDF();
-            }
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                border-radius: 20px;
+                padding: 30px;
+                max-width: 400px;
+                width: 100%;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h3 style="color: #5a67d8; margin-bottom: 20px; text-align: center;">Export Your Data</h3>
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    <button onclick="exportToCSV(); document.body.removeChild(document.body.lastElementChild);" 
+                            style="padding: 15px; background: #48bb78; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        📊 Export to CSV (Excel)
+                    </button>
+                    <button onclick="exportToJSON(); document.body.removeChild(document.body.lastElementChild);" 
+                            style="padding: 15px; background: #5a67d8; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        💾 Export to JSON (Backup)
+                    </button>
+                    <button onclick="exportToPDF(); document.body.removeChild(document.body.lastElementChild);" 
+                            style="padding: 15px; background: #9f7aea; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        📄 Export to PDF (Print)
+                    </button>
+                    <button onclick="document.body.removeChild(document.body.lastElementChild);" 
+                            style="padding: 15px; background: #718096; color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                        Cancel
+                    </button>
+                </div>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    document.body.removeChild(modal);
+                }
+            });
         }
         
         function exportToCSV() {
