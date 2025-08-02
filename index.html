@@ -51,6 +51,7 @@
             <div class="tabs">
                 <button class="tab active" onclick="showSection('goals')">Life Goals</button>
                 <button class="tab" onclick="showSection('exposures')">Exposure Log</button>
+                <button class="tab" onclick="showSection('interoceptive')">Interoceptive Exposure</button>
                 <button class="tab" id="summaryTab" onclick="showSection('summary')">
                     Weekly Summary
                     <span class="notification-dot" id="weeklyNotification" style="display: none;"></span>
@@ -180,6 +181,83 @@
                 </div>
             </div>
             
+            <!-- Interoceptive Exposure Section -->
+            <div id="interoceptive" class="section">
+                <h2 style="color: #5a67d8; margin-bottom: 20px;">Interoceptive Exposure</h2>
+                <h3 style="color: #718096; margin-bottom: 15px;">Internal Sensations Exercises</h3>
+                <p style="color: #718096; margin-bottom: 30px;">These exercises are designed to mimic the physical sensations experienced during panic. Use a timer for each.</p>
+                
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 10px; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);">
+                        <thead>
+                            <tr style="background: #5a67d8; color: white;">
+                                <th style="padding: 15px; text-align: left; border-top-left-radius: 10px;">Exercise</th>
+                                <th style="padding: 15px; text-align: left;">Duration</th>
+                                <th style="padding: 15px; text-align: left; border-top-right-radius: 10px;">Instructions/Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 15px; font-weight: 600;">Hyperventilation</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Breathe deeply and quickly through your mouth, as loudly and forcefully as possible. Maintain the pace.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0; background: #f7fafc;">
+                                <td style="padding: 15px; font-weight: 600;">Shaking head</td>
+                                <td style="padding: 15px;">30 sec</td>
+                                <td style="padding: 15px;">Shake your head side to side with eyes open. Then look straight ahead. Be gentle with your neck.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 15px; font-weight: 600;">Head between legs</td>
+                                <td style="padding: 15px;">30 sec</td>
+                                <td style="padding: 15px;">Sit in a chair, place head between legs, then stand up quickly. Be cautious with back problems.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0; background: #f7fafc;">
+                                <td style="padding: 15px; font-weight: 600;">Running in place / up stairs</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Run quickly without slowing down. Focus on maintaining a fast pace.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 15px; font-weight: 600;">Muscle tension / Push-up hold</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Sit and tense all muscles or hold a push-up position. Can use techniques from progressive muscle relaxation.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0; background: #f7fafc;">
+                                <td style="padding: 15px; font-weight: 600;">Hold your breath</td>
+                                <td style="padding: 15px;">30 sec</td>
+                                <td style="padding: 15px;">Take a deep breath and hold it for as long as you can if 30 seconds is too long.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 15px; font-weight: 600;">Spinning</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Use a swivel chair or spin while standing. Be careful to avoid injury.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0; background: #f7fafc;">
+                                <td style="padding: 15px; font-weight: 600;">Breathing through a straw</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Use a narrow straw while pinching your nose. Breathe only through the straw.</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid #e2e8f0;">
+                                <td style="padding: 15px; font-weight: 600;">Chest breathing</td>
+                                <td style="padding: 15px;">1 min</td>
+                                <td style="padding: 15px;">Take a deep breath to puff up your chest, then continue with short, shallow chest breaths.</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 15px; font-weight: 600; border-bottom-left-radius: 10px;">Staring at a spot</td>
+                                <td style="padding: 15px;">1.5 min</td>
+                                <td style="padding: 15px; border-bottom-right-radius: 10px;">Stare at a single point (wall or mirror image) without shifting your gaze. Try not to blink too much.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div style="margin-top: 30px; padding: 20px; background: #edf2f7; border-radius: 10px; text-align: center;">
+                    <p style="color: #4a5568; font-style: italic; margin: 0;">
+                        Extracted from "When Panic Attacks – Module 4: Coping with Physical Alarms"
+                    </p>
+                </div>
+            </div>
+            
             <!-- Weekly Summary Section -->
             <div id="summary" class="section">
                 <h2 style="color: #5a67d8; margin-bottom: 20px;">Weekly Progress Summary</h2>
@@ -239,6 +317,10 @@
             <button class="mobile-nav-item" onclick="showSection('exposures', true)">
                 <span class="mobile-nav-icon">📝</span>
                 <span>Log</span>
+            </button>
+            <button class="mobile-nav-item" onclick="showSection('interoceptive', true)">
+                <span class="mobile-nav-icon">💓</span>
+                <span>Internal</span>
             </button>
             <button class="mobile-nav-item" onclick="showSection('summary', true)">
                 <span class="mobile-nav-icon">📊</span>
