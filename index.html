@@ -70,6 +70,28 @@
                 📥 Export Data
             </button>
             
+            <!-- Quick Add FAB (Mobile Only) -->
+            <div class="quick-add-fab" id="quickAddFab" onclick="showQuickAddMenu()">
+                <span class="fab-icon">+</span>
+            </div>
+            
+            <!-- Quick Add Menu -->
+            <div class="quick-add-menu" id="quickAddMenu" style="display: none;">
+                <button class="quick-add-item" onclick="quickAddExposure()">
+                    <span class="quick-icon">📝</span>
+                    <span>Log Exposure</span>
+                </button>
+                <button class="quick-add-item" onclick="quickStartTimer()">
+                    <span class="quick-icon">💓</span>
+                    <span>Start Exercise</span>
+                </button>
+                <button class="quick-add-item" onclick="quickAddGoal()">
+                    <span class="quick-icon">🎯</span>
+                    <span>Add Goal</span>
+                </button>
+                <div class="quick-add-overlay" onclick="hideQuickAddMenu()"></div>
+            </div>
+            
             <div class="tabs">
                 <button class="tab active" onclick="showSection('goals')">Life Goals</button>
                 <button class="tab" onclick="showSection('exposures')">Exposure Log</button>
@@ -139,17 +161,32 @@
                         
                         <div class="form-group">
                             <label>What I Fear Will Happen</label>
-                            <textarea id="fearWillHappen" placeholder="What are you afraid might happen?"></textarea>
+                            <div class="voice-input-container">
+                                <textarea id="fearWillHappen" placeholder="What are you afraid might happen?"></textarea>
+                                <button type="button" class="voice-btn" onclick="startVoiceInput('fearWillHappen')" title="Voice input">
+                                    🎤
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="form-group">
                             <label>What Actually Happened</label>
-                            <textarea id="whatActuallyHappened" placeholder="What was the reality?"></textarea>
+                            <div class="voice-input-container">
+                                <textarea id="whatActuallyHappened" placeholder="What was the reality?"></textarea>
+                                <button type="button" class="voice-btn" onclick="startVoiceInput('whatActuallyHappened')" title="Voice input">
+                                    🎤
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label>Notes or Reflections</label>
-                            <textarea id="notes" placeholder="Any additional thoughts or observations"></textarea>
+                            <div class="voice-input-container">
+                                <textarea id="notes" placeholder="Any additional thoughts or observations"></textarea>
+                                <button type="button" class="voice-btn" onclick="startVoiceInput('notes')" title="Voice input">
+                                    🎤
+                                </button>
+                            </div>
                         </div>
                         
                         <div class="form-group" style="grid-column: 1 / -1;">
@@ -359,7 +396,12 @@
                         
                         <div class="form-group" style="grid-column: 1 / -1;">
                             <label>What I Learned This Week</label>
-                            <textarea id="weeklyLearnings" placeholder="Key insights and progress from this week"></textarea>
+                            <div class="voice-input-container">
+                                <textarea id="weeklyLearnings" placeholder="Key insights and progress from this week"></textarea>
+                                <button type="button" class="voice-btn" onclick="startVoiceInput('weeklyLearnings')" title="Voice input">
+                                    🎤
+                                </button>
+                            </div>
                         </div>
                     </div>
                     
@@ -1737,6 +1779,307 @@
             // Try to sync any pending offline data
             if (isOnline) {
                 setTimeout(syncOfflineData, 2000);
+            }
+            
+            // Initialize mobile features
+            initializeMobileFeatures();
+        });
+        
+        // Mobile Enhancement Features
+        let recognition = null;
+        let isVoiceInputActive = false;
+        
+        // Initialize mobile-specific features
+        function initializeMobileFeatures() {
+            // Initialize Speech Recognition
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+            }
+            
+            // Add swipe gestures for mobile
+            if (window.innerWidth <= 768) {
+                initializeSwipeGestures();
+                showQuickAddFab();
+            }
+            
+            // Add haptic feedback where supported
+            initializeHapticFeedback();
+        }
+        
+        // Voice Input Functionality
+        function startVoiceInput(textareaId) {
+            if (!recognition) {
+                alert('Voice input not supported in this browser');
+                return;
+            }
+            
+            if (isVoiceInputActive) {
+                stopVoiceInput();
+                return;
+            }
+            
+            const textarea = document.getElementById(textareaId);
+            const voiceBtn = textarea.parentElement.querySelector('.voice-btn');
+            
+            isVoiceInputActive = true;
+            voiceBtn.textContent = '🔴';
+            voiceBtn.classList.add('recording');
+            
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            recognition.onresult = function(event) {
+                const transcript = event.results[0][0].transcript;
+                
+                // Append to existing text or replace if empty
+                if (textarea.value.trim()) {
+                    textarea.value += ' ' + transcript;
+                } else {
+                    textarea.value = transcript;
+                }
+                
+                // Trigger input event for any listeners
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+                
+                stopVoiceInput();
+            };
+            
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopVoiceInput();
+                
+                if (event.error === 'not-allowed') {
+                    alert('Microphone access denied. Please enable microphone permissions.');
+                } else {
+                    alert('Voice recognition failed. Please try again.');
+                }
+            };
+            
+            recognition.onend = function() {
+                stopVoiceInput();
+            };
+            
+            recognition.start();
+        }
+        
+        function stopVoiceInput() {
+            if (recognition && isVoiceInputActive) {
+                recognition.stop();
+            }
+            
+            isVoiceInputActive = false;
+            
+            // Reset all voice buttons
+            document.querySelectorAll('.voice-btn').forEach(btn => {
+                btn.textContent = '🎤';
+                btn.classList.remove('recording');
+            });
+        }
+        
+        // Quick Add FAB Functionality
+        function showQuickAddFab() {
+            const fab = document.getElementById('quickAddFab');
+            if (fab && window.innerWidth <= 768) {
+                fab.style.display = 'flex';
+            }
+        }
+        
+        function showQuickAddMenu() {
+            const menu = document.getElementById('quickAddMenu');
+            menu.style.display = 'block';
+            
+            // Haptic feedback
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+            
+            setTimeout(() => {
+                menu.classList.add('show');
+            }, 10);
+        }
+        
+        function hideQuickAddMenu() {
+            const menu = document.getElementById('quickAddMenu');
+            menu.classList.remove('show');
+            
+            setTimeout(() => {
+                menu.style.display = 'none';
+            }, 300);
+        }
+        
+        // Quick Add Actions
+        function quickAddExposure() {
+            hideQuickAddMenu();
+            showSection('exposures');
+            
+            // Focus on the situation input for quick entry
+            setTimeout(() => {
+                const situationInput = document.getElementById('exposureSituation');
+                if (situationInput) {
+                    situationInput.focus();
+                    situationInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 300);
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(25);
+            }
+        }
+        
+        function quickStartTimer() {
+            hideQuickAddMenu();
+            showSection('interoceptive');
+            
+            // Auto-start 1 minute timer for quick session
+            setTimeout(() => {
+                setTimerDuration(60);
+                document.getElementById('currentExercise').textContent = 'Current Exercise: Quick Session';
+                document.getElementById('timerWidget').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                startTimer();
+            }, 300);
+            
+            if (navigator.vibrate) {
+                navigator.vibrate([50, 50, 50]);
+            }
+        }
+        
+        function quickAddGoal() {
+            hideQuickAddMenu();
+            showSection('goals');
+            
+            // Find first empty goal input and focus
+            setTimeout(() => {
+                const goalInputs = document.querySelectorAll('.goal-input');
+                for (let input of goalInputs) {
+                    if (!input.value.trim()) {
+                        input.focus();
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        break;
+                    }
+                }
+            }, 300);
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(25);
+            }
+        }
+        
+        // Swipe Gestures
+        let touchStartX = 0;
+        let touchStartY = 0;
+        let touchEndX = 0;
+        let touchEndY = 0;
+        
+        function initializeSwipeGestures() {
+            const container = document.querySelector('.container');
+            
+            container.addEventListener('touchstart', function(e) {
+                touchStartX = e.changedTouches[0].screenX;
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
+            
+            container.addEventListener('touchend', function(e) {
+                touchEndX = e.changedTouches[0].screenX;
+                touchEndY = e.changedTouches[0].screenY;
+                handleSwipeGesture();
+            }, { passive: true });
+        }
+        
+        function handleSwipeGesture() {
+            const deltaX = touchEndX - touchStartX;
+            const deltaY = touchEndY - touchStartY;
+            const minSwipeDistance = 100;
+            
+            // Ensure this is primarily a horizontal swipe
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > minSwipeDistance) {
+                const sections = ['goals', 'exposures', 'interoceptive', 'summary'];
+                const currentSection = document.querySelector('.section.active').id;
+                const currentIndex = sections.indexOf(currentSection);
+                
+                if (deltaX > 0 && currentIndex > 0) {
+                    // Swipe right - go to previous section
+                    showSection(sections[currentIndex - 1], true);
+                    if (navigator.vibrate) {
+                        navigator.vibrate(25);
+                    }
+                } else if (deltaX < 0 && currentIndex < sections.length - 1) {
+                    // Swipe left - go to next section
+                    showSection(sections[currentIndex + 1], true);
+                    if (navigator.vibrate) {
+                        navigator.vibrate(25);
+                    }
+                }
+            }
+        }
+        
+        // Haptic Feedback Enhancement
+        function initializeHapticFeedback() {
+            // Add haptic feedback to important buttons
+            const importantButtons = document.querySelectorAll('.btn, .tab, .mobile-nav-item');
+            
+            importantButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    if (navigator.vibrate) {
+                        navigator.vibrate(25);
+                    }
+                });
+            });
+        }
+        
+        // Smart Keyboard Handling
+        let initialViewportHeight = window.innerHeight;
+        
+        window.addEventListener('resize', function() {
+            // Handle virtual keyboard on mobile
+            if (window.innerWidth <= 768) {
+                const currentHeight = window.innerHeight;
+                const keyboardHeight = initialViewportHeight - currentHeight;
+                
+                if (keyboardHeight > 150) {
+                    // Keyboard is likely open
+                    document.body.classList.add('keyboard-open');
+                    
+                    // Hide FAB when keyboard is open
+                    const fab = document.getElementById('quickAddFab');
+                    if (fab) {
+                        fab.style.display = 'none';
+                    }
+                } else {
+                    // Keyboard is likely closed
+                    document.body.classList.remove('keyboard-open');
+                    
+                    // Show FAB when keyboard is closed
+                    showQuickAddFab();
+                }
+            }
+        });
+        
+        // Enhanced touch feedback for sliders on mobile
+        document.addEventListener('DOMContentLoaded', function() {
+            const sliders = document.querySelectorAll('.anxiety-slider');
+            sliders.forEach(slider => {
+                slider.addEventListener('input', function() {
+                    if (navigator.vibrate && window.innerWidth <= 768) {
+                        navigator.vibrate(10);
+                    }
+                });
+            });
+        });
+        
+        // Hide quick add menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('quickAddMenu');
+            const fab = document.getElementById('quickAddFab');
+            
+            if (menu && menu.style.display === 'block' && 
+                !menu.contains(e.target) && !fab.contains(e.target)) {
+                hideQuickAddMenu();
             }
         });
     </script>

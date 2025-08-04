@@ -204,6 +204,160 @@
             background: rgba(255, 255, 255, 0.3);
         }
         
+        /* Voice Input Styles */
+        .voice-input-container {
+            position: relative;
+            display: flex;
+            align-items: stretch;
+        }
+        
+        .voice-input-container textarea {
+            flex: 1;
+            padding-right: 50px;
+        }
+        
+        .voice-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #5a67d8;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+        
+        .voice-btn:hover {
+            background: #4c51bf;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .voice-btn.recording {
+            background: #e53e3e;
+            animation: recording-pulse 1s infinite;
+        }
+        
+        @keyframes recording-pulse {
+            0% { transform: translateY(-50%) scale(1); }
+            50% { transform: translateY(-50%) scale(1.1); }
+            100% { transform: translateY(-50%) scale(1); }
+        }
+        
+        /* Quick Add FAB */
+        .quick-add-fab {
+            display: none;
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 1000;
+            user-select: none;
+        }
+        
+        .quick-add-fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+        }
+        
+        .quick-add-fab:active {
+            transform: scale(0.95);
+        }
+        
+        .fab-icon {
+            color: white;
+            font-size: 28px;
+            font-weight: 300;
+            line-height: 1;
+        }
+        
+        /* Quick Add Menu */
+        .quick-add-menu {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 20px 20px 0 0;
+            box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.2);
+            z-index: 10000;
+            transform: translateY(100%);
+            transition: transform 0.3s ease;
+            padding: 20px 20px 40px 20px;
+        }
+        
+        .quick-add-menu.show {
+            transform: translateY(0);
+        }
+        
+        .quick-add-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
+        }
+        
+        .quick-add-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            width: 100%;
+            padding: 16px 20px;
+            background: #f7fafc;
+            border: none;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #2d3748;
+        }
+        
+        .quick-add-item:hover {
+            background: #edf2f7;
+            transform: translateX(5px);
+        }
+        
+        .quick-add-item:active {
+            background: #e2e8f0;
+            transform: scale(0.98);
+        }
+        
+        .quick-icon {
+            font-size: 24px;
+            width: 32px;
+            text-align: center;
+        }
+        
+        /* Keyboard Open State */
+        .keyboard-open .quick-add-fab {
+            display: none !important;
+        }
+        
+        .keyboard-open .container {
+            padding-bottom: 20px;
+        }
+        
         .tabs {
             display: flex;
             gap: 10px;
@@ -760,6 +914,46 @@
             
             .offline-content {
                 gap: 8px;
+            }
+            
+            /* Voice Input Mobile Adjustments */
+            .voice-btn {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+                right: 6px;
+            }
+            
+            .voice-input-container textarea {
+                padding-right: 45px;
+            }
+            
+            /* Quick Add FAB Mobile Position */
+            .quick-add-fab {
+                bottom: 90px;
+                right: 16px;
+                width: 52px;
+                height: 52px;
+            }
+            
+            .fab-icon {
+                font-size: 24px;
+            }
+            
+            /* Enhanced Touch Targets */
+            .anxiety-slider {
+                height: 16px;
+                margin: 8px 0;
+            }
+            
+            .anxiety-slider::-webkit-slider-thumb {
+                width: 32px;
+                height: 32px;
+            }
+            
+            /* Better spacing for voice inputs on mobile */
+            .voice-input-container {
+                margin-bottom: 5px;
             }
             
             .export-button {
