@@ -492,7 +492,12 @@
             onValue(exposuresRef, (snapshot) => {
                 const data = snapshot.val();
                 window.exposures = data ? Object.entries(data).map(([id, exp]) => ({ ...exp, id })) : [];
-                window.exposures.sort((a, b) => new Date(b.date) - new Date(a.date));
+                window.exposures.sort((a, b) => {
+                    // Create full datetime for comparison (newest first)
+                    const dateTimeA = new Date(`${a.date}T${a.time || '00:00'}:00`);
+                    const dateTimeB = new Date(`${b.date}T${b.time || '00:00'}:00`);
+                    return dateTimeB - dateTimeA;
+                });
                 renderExposures();
                 checkWeeklyReminder();
             });

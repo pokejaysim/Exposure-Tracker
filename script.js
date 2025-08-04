@@ -102,7 +102,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
             onValue(exposuresRef, (snapshot) => {
                 const data = snapshot.val();
                 window.exposures = data ? Object.entries(data).map(([id, exp]) => ({ ...exp, id })) : [];
-                window.exposures.sort((a, b) => parseDateString(b.date) - parseDateString(a.date));
+                window.exposures.sort((a, b) => {
+                    // Create full datetime for comparison (newest first)
+                    const dateTimeA = new Date(`${a.date}T${a.time || '00:00'}:00`);
+                    const dateTimeB = new Date(`${b.date}T${b.time || '00:00'}:00`);
+                    return dateTimeB - dateTimeA;
+                });
                 renderExposures();
                 checkWeeklyReminder();
             });
