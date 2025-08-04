@@ -12,13 +12,16 @@ This is an **Exposure Therapy Progress Tracker** - a client-side web application
 - **Frontend**: Vanilla HTML, CSS, and JavaScript (no build process required)
 - **Backend**: Firebase Realtime Database for data persistence
 - **Authentication**: Firebase Auth with Google Sign-In
+- **PWA**: Progressive Web App with offline capabilities and service worker
 - **Deployment**: Static web hosting (GitHub Pages compatible)
 
 ### File Structure
-- `index.html` - Main application HTML with embedded Firebase module scripts
+- `index.html` - Main application HTML with embedded Firebase module scripts and PWA integration
 - `script.js` - Main application JavaScript (non-module scripts)
 - `firebase-config.js` - Firebase configuration (ES6 module export)
-- `style.css` - Complete application styles with responsive design
+- `style.css` - Complete application styles with responsive design and PWA elements
+- `manifest.json` - PWA configuration (app name, icons, display mode)
+- `sw.js` - Service Worker for offline functionality and caching
 
 ### Key Application Features
 1. **Life Goals**: Users can set up to 10 life goals they want to achieve without anxiety
@@ -31,6 +34,8 @@ This is an **Exposure Therapy Progress Tracker** - a client-side web application
 4. **Weekly Summaries**: Progress tracking with automatic exposure counting
 5. **Data Export**: CSV, JSON, and PDF export capabilities
 6. **Search/Filter**: Advanced filtering of exposure history
+7. **PWA Features**: Offline functionality, installable app, push notifications support
+8. **Sync Management**: Automatic background sync when connection returns
 
 ### Data Structure
 - **Goals**: Array of 10 strings stored at `/users/{uid}/goals`
@@ -87,10 +92,12 @@ The Firebase configuration is stored in `firebase-config.js` as an ES6 module. T
 
 1. **No Build Process**: Application runs directly in browser without compilation
 2. **Firebase Integration**: Uses Firebase v9 SDK via CDN with modular imports
-3. **Offline Capability**: Firebase provides offline persistence automatically
-4. **State Management**: Uses global variables and Firebase real-time listeners
+3. **PWA Offline Capability**: Service Worker provides comprehensive offline support with local storage fallback
+4. **State Management**: Uses global variables and Firebase real-time listeners with offline sync queue
 5. **Export Functionality**: Client-side data export to CSV/JSON/PDF formats
 6. **Security**: All data is user-scoped and requires authentication
+7. **Installable**: Can be installed as native-like app on mobile and desktop devices
+8. **Background Sync**: Automatically syncs offline data when connection returns
 
 ## Common Development Tasks
 
@@ -107,3 +114,9 @@ No automated test framework is configured. Test manually by:
 3. Verifying CRUD operations for goals, exposures, summaries
 4. Testing responsive design on mobile devices
 5. Verifying export functionality
+6. **PWA Testing**:
+   - Install app via browser "Add to Home Screen" prompt
+   - Test offline functionality (disable network, verify data entry works)
+   - Test sync when connection returns
+   - Verify service worker caching (check DevTools > Application > Service Workers)
+   - Test connection status indicators

@@ -3,10 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235a67d8'/><text x='50' y='50' font-size='50' text-anchor='middle' dy='.35em' fill='white'>🌟</text></svg>">
+    <!-- PWA Configuration -->
+    <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#5a67d8">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ExposureTracker">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235a67d8'/><text x='50' y='50' font-size='50' text-anchor='middle' dy='.35em' fill='white'>🌟</text></svg>">
+    
+    <!-- Additional PWA Meta Tags -->
+    <meta name="msapplication-TileColor" content="#5a67d8">
+    <meta name="msapplication-TileImage" content="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%235a67d8'/><text x='50' y='50' font-size='50' text-anchor='middle' dy='.35em' fill='white'>🌟</text></svg>">
     <title>Exposure Therapy Progress Tracker</title>
      <link rel="stylesheet" href="style.css">
 </head>
@@ -20,7 +29,20 @@
     <div class="user-info" id="userInfo" style="display: none;">
         <img id="userPhoto" src="" alt="User profile photo">
         <span id="userName"></span>
+        <div class="connection-status" id="connectionStatus">
+            <span class="status-indicator" id="statusIndicator">🟢</span>
+            <span class="status-text" id="statusText">Online</span>
+        </div>
         <button onclick="signOut()">Sign Out</button>
+    </div>
+    
+    <!-- Offline Notice -->
+    <div class="offline-notice" id="offlineNotice" style="display: none;">
+        <div class="offline-content">
+            <span>📴</span>
+            <span>You're offline - data will sync when connection returns</span>
+            <button onclick="hideOfflineNotice()" class="close-offline">×</button>
+        </div>
     </div>
     
     <div class="container">
@@ -1469,6 +1491,254 @@
                 });
             }
         }
+        
+        // PWA and Offline Functionality
+        let isOnline = navigator.onLine;
+        let syncInProgress = false;
+        
+        // Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered:', registration);
+                        
+                        // Handle service worker updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed') {
+                                    if (navigator.serviceWorker.controller) {
+                                        // New update available
+                                        showUpdateNotification();
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error('SW registration failed:', error);
+                    });
+                
+                // Listen for service worker messages
+                navigator.serviceWorker.addEventListener('message', handleSWMessage);
+            });
+        }
+        
+        // Handle service worker messages
+        function handleSWMessage(event) {
+            if (event.data && event.data.type === 'BACKGROUND_SYNC') {
+                console.log('Background sync triggered');
+                syncOfflineData();
+            }
+        }
+        
+        // Online/Offline event listeners
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateConnectionStatus();
+            hideOfflineNotice();
+            // Trigger sync when coming back online
+            setTimeout(syncOfflineData, 1000);
+        });
+        
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateConnectionStatus();
+            showOfflineNotice();
+        });
+        
+        // Update connection status indicator
+        function updateConnectionStatus() {
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            
+            if (isOnline) {
+                indicator.textContent = '🟢';
+                text.textContent = syncInProgress ? 'Syncing...' : 'Online';
+                text.style.color = '#48bb78';
+            } else {
+                indicator.textContent = '🔴';
+                text.textContent = 'Offline';
+                text.style.color = '#f56565';
+            }
+        }
+        
+        // Show offline notice
+        function showOfflineNotice() {
+            const notice = document.getElementById('offlineNotice');
+            if (notice) {
+                notice.style.display = 'block';
+                setTimeout(() => {
+                    notice.style.opacity = '1';
+                    notice.style.transform = 'translateY(0)';
+                }, 100);
+            }
+        }
+        
+        // Hide offline notice
+        function hideOfflineNotice() {
+            const notice = document.getElementById('offlineNotice');
+            if (notice) {
+                notice.style.opacity = '0';
+                notice.style.transform = 'translateY(-100%)';
+                setTimeout(() => {
+                    notice.style.display = 'none';
+                }, 300);
+            }
+        }
+        
+        // Show update notification
+        function showUpdateNotification() {
+            if (confirm('A new version is available. Reload to update?')) {
+                window.location.reload();
+            }
+        }
+        
+        // Offline data management
+        function getOfflineData() {
+            return JSON.parse(localStorage.getItem('offlineExposureData')) || {
+                exposures: [],
+                goals: [...window.goals],
+                summaries: [],
+                syncQueue: [],
+                lastSync: null
+            };
+        }
+        
+        function saveOfflineData(data) {
+            localStorage.setItem('offlineExposureData', JSON.stringify(data));
+        }
+        
+        // Enhanced save functions for offline support
+        window.saveExposureOffline = function(exposure) {
+            const offlineData = getOfflineData();
+            
+            // Add temporary ID and mark as pending sync
+            if (!exposure.id) {
+                exposure.id = 'temp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                exposure._pendingSync = true;
+            }
+            
+            // Add to offline storage
+            const existingIndex = offlineData.exposures.findIndex(e => e.id === exposure.id);
+            if (existingIndex >= 0) {
+                offlineData.exposures[existingIndex] = { ...exposure };
+            } else {
+                offlineData.exposures.push({ ...exposure });
+            }
+            
+            // Add to sync queue
+            offlineData.syncQueue.push({
+                action: exposure._pendingSync ? 'create' : 'update',
+                type: 'exposure',
+                data: { ...exposure },
+                timestamp: Date.now()
+            });
+            
+            saveOfflineData(offlineData);
+            
+            // Try to sync immediately if online
+            if (isOnline) {
+                setTimeout(syncOfflineData, 500);
+            }
+            
+            return exposure;
+        };
+        
+        // Sync offline data when online
+        async function syncOfflineData() {
+            if (!isOnline || syncInProgress) return;
+            
+            const offlineData = getOfflineData();
+            if (!offlineData.syncQueue || offlineData.syncQueue.length === 0) return;
+            
+            syncInProgress = true;
+            updateConnectionStatus();
+            
+            console.log('Syncing', offlineData.syncQueue.length, 'offline operations...');
+            
+            const successfulSyncs = [];
+            
+            for (const operation of offlineData.syncQueue) {
+                try {
+                    switch (operation.action) {
+                        case 'create':
+                            if (operation.type === 'exposure') {
+                                // Remove temporary fields before saving
+                                const exposureData = { ...operation.data };
+                                delete exposureData._pendingSync;
+                                
+                                // If it has a temp ID, let Firebase generate a real one
+                                if (exposureData.id && exposureData.id.startsWith('temp_')) {
+                                    delete exposureData.id;
+                                }
+                                
+                                await window.saveExposure(exposureData);
+                                console.log('Synced exposure:', exposureData.referenceNumber);
+                            }
+                            break;
+                        case 'update':
+                            if (operation.type === 'exposure') {
+                                await window.saveExposure(operation.data);
+                                console.log('Updated exposure:', operation.data.referenceNumber);
+                            }
+                            break;
+                        case 'delete':
+                            if (operation.type === 'exposure') {
+                                await window.deleteExposureFromDb(operation.data.id);
+                                console.log('Deleted exposure:', operation.data.id);
+                            }
+                            break;
+                    }
+                    successfulSyncs.push(operation);
+                } catch (error) {
+                    console.error('Sync failed for operation:', operation, error);
+                    // Keep failed operations in queue for retry
+                }
+            }
+            
+            // Remove successfully synced operations
+            offlineData.syncQueue = offlineData.syncQueue.filter(
+                op => !successfulSyncs.includes(op)
+            );
+            offlineData.lastSync = Date.now();
+            
+            saveOfflineData(offlineData);
+            
+            syncInProgress = false;
+            updateConnectionStatus();
+            
+            if (successfulSyncs.length > 0) {
+                console.log('Successfully synced', successfulSyncs.length, 'operations');
+            }
+        }
+        
+        // Override the original saveExposure to handle offline
+        const originalSaveExposure = window.saveExposure;
+        window.saveExposure = async function(exposure) {
+            if (!isOnline) {
+                console.log('Offline: Saving exposure locally');
+                return window.saveExposureOffline(exposure);
+            } else {
+                try {
+                    return await originalSaveExposure(exposure);
+                } catch (error) {
+                    console.error('Online save failed, saving offline:', error);
+                    return window.saveExposureOffline(exposure);
+                }
+            }
+        };
+        
+        // Initialize connection status
+        document.addEventListener('DOMContentLoaded', () => {
+            updateConnectionStatus();
+            
+            // Try to sync any pending offline data
+            if (isOnline) {
+                setTimeout(syncOfflineData, 2000);
+            }
+        });
     </script>
 </body>
 </html>
